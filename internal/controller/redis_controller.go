@@ -48,23 +48,18 @@ type RedisReconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.4/pkg/reconcile
-// 提供一个访问svc
-// 通过statefulset管理redis实例
+
 func (r *RedisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	reqLogger := logf.Log.WithName("controller_redis")
 	reqLogger = reqLogger.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
 	reqLogger.Info("Creating Redis")
-	//TODO 使用informer创建
 
-	/**
-		1.检查在同一个namespace下是否相等，如果相等则直接返回
-	    2.不相等则直接创建statefulset
-	*/
-	redisInstance := &rediscolav1alpha1.Redis{}
+	innstance := &rediscolav1alpha1.Redis{}
 	if err := r.Client.Get(context.TODO(), req.NamespacedName, redisInstance); err != nil {
 		reqLogger.Error(err, "failed to get Redis")
 		return ctrl.Result{}, nil
 	}
+
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s", redisInstance.Name),
@@ -73,6 +68,9 @@ func (r *RedisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		},
 		Spec: redisInstance.Spec.Template.Spec,
 	}
+	//TODO 提供SVC访问地址
+	//TODO 通过SC实现持久化
+
 	if err := r.Create(ctx, pod); err != nil {
 		reqLogger.Error(err, "failed to create Pod")
 		return ctrl.Result{RequeueAfter: 1 * time.Minute}, err

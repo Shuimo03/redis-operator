@@ -46,6 +46,11 @@ type RedisStatus struct {
 	Deleting   string `json:"deleting,omitempty"`
 }
 
+type RedisExporter struct {
+	Image           string            `json:"image,omitempty"`
+	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty"`
+}
+
 type RedisStorage struct {
 	EmptyDir              *corev1.EmptyDirVolumeSource `json:"emptyDir,omitempty"`
 	PersistentVolumeClaim corev1.PersistentVolumeClaim `json:"persistentVolumeClaim,omitempty"`
@@ -58,9 +63,8 @@ type RedisStorage struct {
 type Redis struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   RedisSpec   `json:"spec,omitempty"`
-	Status RedisStatus `json:"status,omitempty"`
+	Spec              RedisSpec   `json:"spec,omitempty"`
+	Status            RedisStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
